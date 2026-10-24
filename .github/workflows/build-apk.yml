@@ -48,7 +48,7 @@ jobs:
             "server": { "androidScheme": "https" }
           }
           EOF
-          npx cap add android
+          [ -d android ] || npx cap add android
           npx cap sync android
 
       - name: Izgradnja Android APK paketa
