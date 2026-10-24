@@ -1,0 +1,67 @@
+{
+  "id": "/",
+  "name": "Slovenski Internetni Radio za Android",
+  "short_name": "Radio SLO",
+  "description": "Sodobni internetni radijski predvajalnik za Android z zaznavanjem govora in pametnim dvigom glasnosti.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#090d16",
+  "background_color": "#090d16",
+  "lang": "sl",
+  "dir": "ltr",
+  "categories": ["music", "entertainment", "news"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "540x960",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobilni pogled predvajalnika"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Glavni zaslon z mrežo postaj"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Val 202",
+      "short_name": "Val 202",
+      "description": "Predvajaj Val 202",
+      "url": "/?station=val202",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Radio Prvi",
+      "short_name": "Prvi",
+      "description": "Predvajaj Radio Prvi",
+      "url": "/?station=prvi",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Internetni Radio</string>
+    <string name="title_activity_main">Internetni Radio</string>
+    <string name="package_name">si.radio.internetni</string>
+    <string name="custom_url_scheme">si.radio.internetni</string>
+</resources>

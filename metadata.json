@@ -1,0 +1,6 @@
+{
+  "name": "Slovenski & Svetovni Internetni Radio za Android",
+  "description": "Preprost in zmogljiv internetni radijski predvajalnik za Android z zaznavanjem govora, samodejnim dvigom glasnosti, časovnikom izklopa, MediaSession podpora ter Radio Browser iskalnikom.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
