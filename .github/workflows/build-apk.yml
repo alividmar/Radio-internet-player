@@ -38,8 +38,17 @@ jobs:
         env:
           CI: true
         run: |
-          npx cap init "Internetni Radio" "si.radio.internetni" --web-dir=dist || true
-          npx cap add android || true
+          # JSON config namesto .ts (izogne se napaki 'CommonJS' z novim TypeScriptom)
+          rm -f capacitor.config.ts capacitor.config.js
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "si.radio.internetni",
+            "appName": "Internetni Radio",
+            "webDir": "dist",
+            "server": { "androidScheme": "https" }
+          }
+          EOF
+          npx cap add android
           npx cap sync android
 
       - name: Izgradnja Android APK paketa
