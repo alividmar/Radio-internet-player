@@ -20,11 +20,11 @@ export const StationGrid: React.FC<StationGridProps> = ({
 }) => {
   const t = translations[lang];
 
-  // Vse postaje; vidni sta 2 vrsti (4 × 2 = 8), ostale se pokažejo z vlečenjem navzgor.
+  // Vse postaje; vidne so 3 vrste (4 × 3 = 12), ostale se pokažejo z vlečenjem navzgor.
   const visibleStations = stations;
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-auto pt-4 px-3 pb-4">
+    <div className="w-full max-w-4xl mx-auto mt-3 px-3 pb-4">
       <div className="flex items-center justify-between mb-2.5 px-1">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
           <Radio className="w-3.5 h-3.5 text-emerald-400" />
@@ -38,12 +38,12 @@ export const StationGrid: React.FC<StationGridProps> = ({
         </span>
       </div>
 
-      {/* 4 stolpci; višina = točno 2 vrsti, naprej z drsenjem (po vrstah) */}
+      {/* 4 stolpci; višina = točno 3 vrste, naprej z drsenjem (po vrstah) */}
       <div
         className="grid grid-cols-4 gap-2.5 overflow-y-auto snap-y snap-mandatory overscroll-contain scrollbar-none"
         style={{
           gridAutoRows: '5.75rem',
-          height: 'calc(2 * 5.75rem + 0.625rem)',
+          height: 'calc(3 * 5.75rem + 2 * 0.625rem)',
           touchAction: 'pan-y',
         }}
       >
