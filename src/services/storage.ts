@@ -16,7 +16,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   useProxyForHttp: true,
   startVolume: 0.6,
-  systemVolume: 0.7,
   startStationId: '',
   playDuration: 0,
 };

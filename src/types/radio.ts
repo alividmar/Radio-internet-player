@@ -21,8 +21,7 @@ export interface AppSettings {
   language: 'sl' | 'en';
   theme: 'dark' | 'light' | 'system';
   useProxyForHttp: boolean; // Route http:// via proxy
-  startVolume: number; // 0..1 - glasnost aplikacije ob vsakem zagonu
-  systemVolume: number; // 0..1 - sistemska glasnost medija, ki jo aplikacija nastavi ob zagonu (samo Android)
+  startVolume: number; // 0..1 - glasnost (v APK: sistemska glasnost medija) ob vsakem zagonu
   startStationId: string; // ID postaje ob zagonu ('' = prva)
   playDuration: number; // minute: samodejni izklop po začetku predvajanja (0 = brez omejitve)
 }

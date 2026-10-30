@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, Mic, Radio, Volume2 } from 'lucide-react';
 import { RadioStation } from '../types/radio';
 import { translations } from '../i18n/translations';
@@ -16,6 +16,8 @@ interface NowPlayingSectionProps {
   onSelectStation: (index: number) => void;
   onPrevStation: () => void;
   onNextStation: () => void;
+  leftSlot?: ReactNode;
+  rightSlot?: ReactNode;
 }
 
 export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
@@ -31,6 +33,8 @@ export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
   onSelectStation,
   onPrevStation,
   onNextStation,
+  leftSlot,
+  rightSlot,
 }) => {
   const t = translations[lang];
 
@@ -74,6 +78,10 @@ export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
         </button>
       </div>
 
+      {/* Vrstica: levi drsnik | ikona + "Zdaj predvaja" | desni drsnik */}
+      <div className="w-full max-w-md grid grid-cols-[1fr_auto_1fr] items-center gap-1 px-1">
+      <div className="flex justify-center">{leftSlot}</div>
+      <div className="flex flex-col items-center">
       {/* Velika ikona predvajane postaje */}
       <div className="relative mt-2 mb-3 flex items-center justify-center">
         {/* Animated Sound Wave Rings when Playing */}
@@ -118,11 +126,15 @@ export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
         </div>
       </div>
 
+      <span className="text-[11px] uppercase tracking-widest text-slate-400 font-bold">
+        {t.nowPlaying}
+      </span>
+      </div>
+      <div className="flex justify-center">{rightSlot}</div>
+      </div>
+
       {/* 2. Naslov “Zdaj predvaja” */}
       <div className="w-full max-w-lg text-center px-4">
-        <span className="text-[11px] uppercase tracking-widest text-slate-400 font-bold">
-          {t.nowPlaying}
-        </span>
         <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5 line-clamp-2 min-h-[3rem] flex items-center justify-center px-2">
           {nowPlayingTitle ? (
             <span className="text-slate-100">{nowPlayingTitle}</span>

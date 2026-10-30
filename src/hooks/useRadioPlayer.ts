@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { AppSettings, RadioStation } from '../types/radio';
-import { isNative, nativeGetIcyTitle, nativeSetSystemVolume } from '../services/native';
+import {
+  isNative,
+  nativeGetIcyTitle,
+  nativeSetSystemVolume,
+  nativeStartService,
+  nativeStopService,
+  onSystemVolumeChange,
+} from '../services/native';
 
 export interface RadioPlayerState {
   currentStation: RadioStation | null;
@@ -50,16 +57,31 @@ export function useRadioPlayer(
     return url;
   }, [settings.useProxyForHttp]);
 
-  // Ob zagonu (in ob spremembi v nastavitvah) nastavi sistemsko glasnost medija
+  // APK: tipke za glasnost na telefonu spremenijo osnovno glasnost (drsnik jim sledi)
   useEffect(() => {
-    nativeSetSystemVolume(settings.systemVolume);
-  }, [settings.systemVolume]);
+    if (!isNative) return;
+    return onSystemVolumeChange((level) => {
+      onUpdateSettings({ volume: level });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // APK: storitev v ospredju drži aplikacijo živo, dokler igra (ugasnjen zaslon)
+  useEffect(() => {
+    if (!isNative) return;
+    if (isPlaying) {
+      nativeStartService(currentStation?.name || 'RadioKlic');
+    } else {
+      nativeStopService();
+    }
+  }, [isPlaying, currentStation?.name]);
 
   // Initialize Audio element once
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'none';
-    audio.volume = settings.volume;
+    // APK: zvok vedno 100 %, glasnost ureja sistem (kot na telefonu)
+    audio.volume = isNative ? 1 : settings.volume;
     audioRef.current = audio;
 
     const onPlay = () => {
@@ -195,8 +217,17 @@ export function useRadioPlayer(
       targetVol = targetVol * fadeRatio;
     }
 
+    if (isNative) {
+      // Glasnost = sistemska glasnost medija; dvig/pojemanje preko nje, ko igra
+      const level = isPlaying ? targetVol : settings.volume;
+      nativeSetSystemVolume(level);
+      setEffectiveVolume(level);
+      return;
+    }
+
     rampVolumeTo(targetVol);
   }, [
+    isPlaying,
     settings.volume,
     settings.boostEnabled,
     settings.boostAmount,
@@ -477,7 +508,10 @@ export function useRadioPlayer(
   const setVolume = useCallback((vol: number) => {
     const clamped = Math.max(0, Math.min(1, vol));
     onUpdateSettings({ volume: clamped });
-    if (audioRef.current && !isSpeechBoostActive) {
+    if (isNative) {
+      nativeSetSystemVolume(clamped);
+      setEffectiveVolume(clamped);
+    } else if (audioRef.current && !isSpeechBoostActive) {
       audioRef.current.volume = clamped;
       setEffectiveVolume(clamped);
     }

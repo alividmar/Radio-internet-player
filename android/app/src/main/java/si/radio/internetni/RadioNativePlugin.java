@@ -1,7 +1,14 @@
 package si.radio.internetni;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.ContentObserver;
 import android.media.AudioManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
+
+import androidx.core.content.ContextCompat;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -59,18 +66,86 @@ public class RadioNativePlugin extends Plugin {
         }, "icy-reader").start();
     }
 
+    // ───────────────── Sistemska glasnost medija ─────────────────
+
+    private AudioManager audio;
+    private ContentObserver volumeObserver;
+    private int lastIndex = -1;
+
+    @Override
+    public void load() {
+        audio = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        lastIndex = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+        volumeObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                int cur = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+                if (cur == lastIndex) return; // naša lastna sprememba ali brez spremembe
+                lastIndex = cur;
+                JSObject o = new JSObject();
+                o.put("level", levelOf(cur));
+                notifyListeners("volumeChanged", o);
+            }
+        };
+        getContext().getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, volumeObserver);
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        if (volumeObserver != null) {
+            getContext().getContentResolver().unregisterContentObserver(volumeObserver);
+        }
+    }
+
+    private double levelOf(int index) {
+        int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return max <= 0 ? 0 : (double) index / max;
+    }
+
+    @PluginMethod
+    public void getSystemVolume(PluginCall call) {
+        JSObject o = new JSObject();
+        o.put("level", levelOf(audio.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        call.resolve(o);
+    }
+
     @PluginMethod
     public void setSystemVolume(PluginCall call) {
         try {
-            Double level = call.getDouble("level", 0.7);
-            double l = level == null ? 0.7 : Math.max(0.0, Math.min(1.0, level));
-            AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-            int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, (int) Math.round(l * max), 0);
+            Double level = call.getDouble("level", 0.5);
+            double l = level == null ? 0.5 : Math.max(0.0, Math.min(1.0, level));
+            int max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int idx = (int) Math.round(l * max);
+            lastIndex = idx; // da observer tega ne javi kot spremembo uporabnika
+            audio.setStreamVolume(AudioManager.STREAM_MUSIC, idx, 0);
             call.resolve();
         } catch (Throwable t) {
             // npr. SecurityException v načinu Ne moti
             call.reject("setSystemVolume: " + t.getMessage());
+        }
+    }
+
+    // ───────────────── Storitev v ospredju (predvajanje ob ugasnjenem zaslonu) ─────────────────
+
+    @PluginMethod
+    public void startService(PluginCall call) {
+        try {
+            Intent i = new Intent(getContext(), RadioService.class);
+            i.putExtra("station", call.getString("station", "RadioKlic"));
+            ContextCompat.startForegroundService(getContext(), i);
+            call.resolve();
+        } catch (Throwable t) {
+            call.reject("startService: " + t.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void stopService(PluginCall call) {
+        try {
+            getContext().stopService(new Intent(getContext(), RadioService.class));
+            call.resolve();
+        } catch (Throwable t) {
+            call.reject("stopService: " + t.getMessage());
         }
     }
 

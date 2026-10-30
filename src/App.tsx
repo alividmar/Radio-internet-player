@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { NowPlayingSection } from './components/NowPlayingSection';
 import { AudioControlsSection } from './components/AudioControlsSection';
+import { VolumeSlider, BoostSlider } from './components/Sliders';
 import { StationGrid } from './components/StationGrid';
 import { StationManagerModal } from './components/StationManagerModal';
 import { RadioBrowserModal } from './components/RadioBrowserModal';
@@ -181,6 +182,23 @@ export default function App() {
           onSelectStation={(idx) => selectStation(idx, isPlaying)}
           onPrevStation={prevStation}
           onNextStation={nextStation}
+          leftSlot={
+            <VolumeSlider
+              lang={settings.language}
+              volume={settings.volume}
+              effectiveVolume={effectiveVolume}
+              isSpeechBoostActive={isSpeechBoostActive}
+              onSetVolume={setVolume}
+            />
+          }
+          rightSlot={
+            <BoostSlider
+              lang={settings.language}
+              boostAmount={settings.boostAmount}
+              boostEnabled={settings.boostEnabled}
+              onSetBoostAmount={setBoostAmount}
+            />
+          }
         />
 
         {/* 3. Navpična drsnika za glasnost in dvig ter stikalo (rdeče izklopljeno, zeleno vklopljeno) */}

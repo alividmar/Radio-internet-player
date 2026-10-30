@@ -28,7 +28,6 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
   const [fadeLast60s, setFadeLast60s] = useState(settings.fadeLast60s);
   const [useProxyForHttp, setUseProxyForHttp] = useState(settings.useProxyForHttp);
   const [startVolume, setStartVolume] = useState(settings.startVolume);
-  const [systemVolume, setSystemVolume] = useState(settings.systemVolume);
   const [startStationId, setStartStationId] = useState(settings.startStationId);
   const [playDuration, setPlayDuration] = useState(String(settings.playDuration));
   const [hasSaved, setHasSaved] = useState(false);
@@ -44,7 +43,6 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
       fadeLast60s,
       useProxyForHttp,
       startVolume,
-      systemVolume,
       startStationId,
       playDuration: Math.max(0, Math.min(720, parseInt(playDuration, 10) || 0)),
     });
@@ -193,7 +191,7 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[11px] text-slate-400">
-                  {lang === 'sl' ? 'Glasnost aplikacije ob zagonu' : 'App volume on start'}
+                  {lang === 'sl' ? 'Glasnost ob zagonu (v APK: glasnost medija na telefonu)' : 'Volume on start (APK: phone media volume)'}
                 </span>
                 <span className="text-xs font-bold text-purple-400 font-mono">{Math.round(startVolume * 100)}%</span>
               </div>
@@ -203,26 +201,6 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
                 onChange={(e) => setStartVolume(parseFloat(e.target.value))}
                 className="w-full accent-purple-500 cursor-pointer"
               />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] text-slate-400">
-                  {lang === 'sl' ? 'Sistemska glasnost medija ob zagonu (Android)' : 'System media volume on start (Android)'}
-                </span>
-                <span className="text-xs font-bold text-purple-400 font-mono">{Math.round(systemVolume * 100)}%</span>
-              </div>
-              <input
-                type="range" min="0" max="1" step="0.05"
-                value={systemVolume}
-                onChange={(e) => setSystemVolume(parseFloat(e.target.value))}
-                className="w-full accent-purple-500 cursor-pointer"
-              />
-              <span className="text-[10px] text-slate-500 block mt-0.5">
-                {lang === 'sl'
-                  ? 'Aplikacija ob zagonu prepiše sistemsko glasnost medija (velja tudi za druge aplikacije).'
-                  : 'The app overrides the phone media volume on start (affects other apps too).'}
-              </span>
             </div>
 
             <div className="flex items-center gap-3">
