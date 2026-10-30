@@ -20,18 +20,17 @@ export const StationGrid: React.FC<StationGridProps> = ({
 }) => {
   const t = translations[lang];
 
-  // Exactly first 16 stations as requested:
-  // "Mreža ikon: prvih 16 postaj kot velike ikone (2×8, na telefonu 4 stolpci). Dotik na ikono začne predvajati."
-  const top16Stations = stations.slice(0, 16);
+  // Vse postaje; vidni sta 2 vrsti (4 × 2 = 8), ostale se pokažejo z vlečenjem navzgor.
+  const visibleStations = stations;
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-4 px-3 pb-8">
+    <div className="w-full max-w-4xl mx-auto mt-auto pt-4 px-3 pb-4">
       <div className="flex items-center justify-between mb-2.5 px-1">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
           <Radio className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{t.first16Stations}</span>
+          <span>{lang === 'sl' ? 'Postaje' : 'Stations'}</span>
           <span className="text-[10px] font-normal text-slate-500">
-            ({top16Stations.length}/16)
+            ({visibleStations.length})
           </span>
         </h3>
         <span className="text-[10px] text-slate-500 hidden sm:inline">
@@ -39,9 +38,16 @@ export const StationGrid: React.FC<StationGridProps> = ({
         </span>
       </div>
 
-      {/* 2x8 on tablet/desktop, 4 columns on phone */}
-      <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3">
-        {top16Stations.map((station, index) => {
+      {/* 4 stolpci; višina = točno 2 vrsti, naprej z drsenjem (po vrstah) */}
+      <div
+        className="grid grid-cols-4 gap-2.5 overflow-y-auto snap-y snap-mandatory overscroll-contain scrollbar-none"
+        style={{
+          gridAutoRows: '5.75rem',
+          height: 'calc(2 * 5.75rem + 0.625rem)',
+          touchAction: 'pan-y',
+        }}
+      >
+        {visibleStations.map((station, index) => {
           const isCurrent = index === currentStationIndex;
           const isCurrentAndPlaying = isCurrent && isPlaying;
 
@@ -49,7 +55,7 @@ export const StationGrid: React.FC<StationGridProps> = ({
             <button
               key={station.id || index}
               onClick={() => onSelectStation(index)}
-              className={`group relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer border ${
+              className={`group relative snap-start flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer border ${
                 isCurrentAndPlaying
                   ? 'bg-emerald-950/70 border-emerald-500 ring-2 ring-emerald-500/30 shadow-lg shadow-emerald-900/30'
                   : isCurrent

@@ -45,7 +45,8 @@ jobs:
             "appId": "si.radio.internetni",
             "appName": "Internetni Radio",
             "webDir": "dist",
-            "server": { "androidScheme": "https" }
+            "server": { "androidScheme": "https" },
+            "android": { "allowMixedContent": true }
           }
           EOF
           [ -d android ] || npx cap add android

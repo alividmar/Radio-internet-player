@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { AppSettings, RadioStation } from '../types/radio';
+import { isNative, nativeGetIcyTitle, nativeSetSystemVolume } from '../services/native';
 
 export interface RadioPlayerState {
   currentStation: RadioStation | null;
@@ -18,7 +19,10 @@ export function useRadioPlayer(
   settings: AppSettings,
   onUpdateSettings: (newSettings: Partial<AppSettings>) => void
 ) {
-  const [currentStationIndex, setCurrentStationIndex] = useState<number>(0);
+  const [currentStationIndex, setCurrentStationIndex] = useState<number>(() => {
+    const idx = stations.findIndex(s => s.id === settings.startStationId);
+    return idx >= 0 ? idx : 0;
+  });
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [nowPlayingTitle, setNowPlayingTitle] = useState<string>('');
@@ -38,12 +42,18 @@ export function useRadioPlayer(
   // Resolve stream URL: if http:// and app is on https, route through server proxy
   const resolveStreamUrl = useCallback((url: string): string => {
     if (!url) return '';
+    if (isNative) return url; // v APK ni strežnika/proxyja; promet dovoljen v manifestu
     const isHttpsPage = typeof window !== 'undefined' && window.location.protocol === 'https:';
     if (isHttpsPage && url.startsWith('http://') && settings.useProxyForHttp) {
       return `/api/proxy-stream?url=${encodeURIComponent(url)}`;
     }
     return url;
   }, [settings.useProxyForHttp]);
+
+  // Ob zagonu (in ob spremembi v nastavitvah) nastavi sistemsko glasnost medija
+  useEffect(() => {
+    nativeSetSystemVolume(settings.systemVolume);
+  }, [settings.systemVolume]);
 
   // Initialize Audio element once
   useEffect(() => {
@@ -202,6 +212,12 @@ export function useRadioPlayer(
   // Fetch ICY metadata periodically
   const fetchIcyMetadata = useCallback(async (station: RadioStation) => {
     if (!station || !station.url) return;
+    if (isNative) {
+      // V APK bere ICY native vtičnik neposredno iz toka (brez CORS)
+      const title = await nativeGetIcyTitle(station.url);
+      if (title) setNowPlayingTitle(title);
+      return;
+    }
     try {
       const resp = await fetch(`/api/icy?url=${encodeURIComponent(station.url)}`);
       if (resp.ok) {
@@ -247,6 +263,12 @@ export function useRadioPlayer(
 
     setError(null);
     setIsLoading(true);
+    const wasPaused = audioRef.current.paused;
+    const startTimerIfNeeded = () => {
+      if (wasPaused && settings.playDuration > 0) {
+        setTimerRemaining(prev => (prev === null ? settings.playDuration * 60 : prev));
+      }
+    };
 
     const streamUrl = resolveStreamUrl(station.url);
     if (audioRef.current.src !== streamUrl) {
@@ -258,10 +280,11 @@ export function useRadioPlayer(
       await audioRef.current.play();
       setIsPlaying(true);
       setIsLoading(false);
+      startTimerIfNeeded();
     } catch (err: unknown) {
       console.warn('Audio play error:', err);
       // Try proxy fallback if not already using proxy
-      if (!streamUrl.includes('/api/proxy-stream')) {
+      if (!isNative && !streamUrl.includes('/api/proxy-stream')) {
         try {
           const proxyUrl = `/api/proxy-stream?url=${encodeURIComponent(station.url)}`;
           audioRef.current.src = proxyUrl;
@@ -269,6 +292,7 @@ export function useRadioPlayer(
           await audioRef.current.play();
           setIsPlaying(true);
           setIsLoading(false);
+          startTimerIfNeeded();
           return;
         } catch (e2) {
           console.error('Proxy fallback failed:', e2);
@@ -278,7 +302,7 @@ export function useRadioPlayer(
       setIsPlaying(false);
       setError('Predvajanje ni uspelo. Preverite povezavo ali URL postaje.');
     }
-  }, [currentStation, resolveStreamUrl]);
+  }, [currentStation, resolveStreamUrl, settings.playDuration]);
 
   const stop = useCallback(() => {
     if (audioRef.current) {

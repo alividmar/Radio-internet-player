@@ -245,6 +245,7 @@ export default function App() {
         lang={settings.language}
         isOpen={isBoostSettingsOpen}
         settings={settings}
+        stations={stations}
         onClose={() => setIsBoostSettingsOpen(false)}
         onSaveSettings={handleUpdateSettings}
       />

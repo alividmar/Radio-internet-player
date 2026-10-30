@@ -15,6 +15,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   language: 'sl',
   theme: 'dark',
   useProxyForHttp: true,
+  startVolume: 0.6,
+  systemVolume: 0.7,
+  startStationId: '',
+  playDuration: 0,
 };
 
 export function loadStations(): RadioStation[] {
@@ -44,7 +48,10 @@ export function loadSettings(): AppSettings {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return DEFAULT_SETTINGS;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    const merged: AppSettings = { ...DEFAULT_SETTINGS, ...parsed };
+    // Ob vsakem zagonu vedno ista glasnost (iz nastavitev), ne zadnja uporabljena
+    merged.volume = merged.startVolume;
+    return merged;
   } catch (e) {
     console.error('Failed to load settings:', e);
   }

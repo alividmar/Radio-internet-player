@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { X, Sparkles, HelpCircle, Save, Check } from 'lucide-react';
-import { AppSettings, BoostMode } from '../types/radio';
+import { AppSettings, BoostMode, RadioStation } from '../types/radio';
 import { translations } from '../i18n/translations';
 
 interface BoostSettingsModalProps {
   lang: 'sl' | 'en';
   isOpen: boolean;
   settings: AppSettings;
+  stations: RadioStation[];
   onClose: () => void;
   onSaveSettings: (newSettings: Partial<AppSettings>) => void;
 }
@@ -15,6 +16,7 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
   lang,
   isOpen,
   settings,
+  stations,
   onClose,
   onSaveSettings,
 }) => {
@@ -25,6 +27,10 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
   const [boostMode, setBoostMode] = useState<BoostMode>(settings.boostMode);
   const [fadeLast60s, setFadeLast60s] = useState(settings.fadeLast60s);
   const [useProxyForHttp, setUseProxyForHttp] = useState(settings.useProxyForHttp);
+  const [startVolume, setStartVolume] = useState(settings.startVolume);
+  const [systemVolume, setSystemVolume] = useState(settings.systemVolume);
+  const [startStationId, setStartStationId] = useState(settings.startStationId);
+  const [playDuration, setPlayDuration] = useState(String(settings.playDuration));
   const [hasSaved, setHasSaved] = useState(false);
 
   if (!isOpen) return null;
@@ -37,6 +43,10 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
       boostMode,
       fadeLast60s,
       useProxyForHttp,
+      startVolume,
+      systemVolume,
+      startStationId,
+      playDuration: Math.max(0, Math.min(720, parseInt(playDuration, 10) || 0)),
     });
     setHasSaved(true);
     setTimeout(() => {
@@ -155,6 +165,81 @@ export const BoostSettingsModal: React.FC<BoostSettingsModalProps> = ({
               <span>+5%</span>
               <span>+25%</span>
               <span>+50%</span>
+            </div>
+          </div>
+
+          {/* Zagon in privzete vrednosti */}
+          <div className="space-y-3 pt-2 border-t border-slate-800">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+              {lang === 'sl' ? 'Zagon aplikacije' : 'App start'}
+            </label>
+
+            <div>
+              <span className="text-[11px] text-slate-400 block mb-1">
+                {lang === 'sl' ? 'Postaja ob zagonu' : 'Station on start'}
+              </span>
+              <select
+                value={startStationId}
+                onChange={(e) => setStartStationId(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">{lang === 'sl' ? 'Prva na seznamu' : 'First in list'}</option>
+                {stations.map((st) => (
+                  <option key={st.id} value={st.id}>{st.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-slate-400">
+                  {lang === 'sl' ? 'Glasnost aplikacije ob zagonu' : 'App volume on start'}
+                </span>
+                <span className="text-xs font-bold text-purple-400 font-mono">{Math.round(startVolume * 100)}%</span>
+              </div>
+              <input
+                type="range" min="0" max="1" step="0.05"
+                value={startVolume}
+                onChange={(e) => setStartVolume(parseFloat(e.target.value))}
+                className="w-full accent-purple-500 cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-slate-400">
+                  {lang === 'sl' ? 'Sistemska glasnost medija ob zagonu (Android)' : 'System media volume on start (Android)'}
+                </span>
+                <span className="text-xs font-bold text-purple-400 font-mono">{Math.round(systemVolume * 100)}%</span>
+              </div>
+              <input
+                type="range" min="0" max="1" step="0.05"
+                value={systemVolume}
+                onChange={(e) => setSystemVolume(parseFloat(e.target.value))}
+                className="w-full accent-purple-500 cursor-pointer"
+              />
+              <span className="text-[10px] text-slate-500 block mt-0.5">
+                {lang === 'sl'
+                  ? 'Aplikacija ob zagonu prepiše sistemsko glasnost medija (velja tudi za druge aplikacije).'
+                  : 'The app overrides the phone media volume on start (affects other apps too).'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <span className="text-[11px] text-slate-400 block">
+                  {lang === 'sl' ? 'Dolžina predvajanja (min)' : 'Play duration (min)'}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  {lang === 'sl' ? '0 = brez samodejnega izklopa' : '0 = no auto-stop'}
+                </span>
+              </div>
+              <input
+                type="number" min="0" max="720"
+                value={playDuration}
+                onChange={(e) => setPlayDuration(e.target.value)}
+                className="w-24 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
             </div>
           </div>
 

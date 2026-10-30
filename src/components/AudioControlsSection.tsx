@@ -120,51 +120,6 @@ export const AudioControlsSection: React.FC<AudioControlsSectionProps> = ({
             </div>
           </div>
 
-          {/* Central Section: Stikalo (rdeče izklopljeno, zeleno vklopljeno) */}
-          <div className="flex flex-col items-center justify-center px-1">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-1">
-              {t.boostSwitch}
-            </span>
-
-            {/* Prominent Red (OFF) / Green (ON) toggle switch */}
-            <button
-              onClick={onToggleBoost}
-              className={`relative flex flex-col items-center justify-center w-20 h-24 rounded-2xl border-2 transition-all duration-300 shadow-lg active:scale-95 cursor-pointer ${
-                boostEnabled
-                  ? 'bg-emerald-950/80 border-emerald-500 shadow-emerald-500/30'
-                  : 'bg-rose-950/80 border-rose-600 shadow-rose-600/30'
-              }`}
-              title={t.boostSwitch}
-            >
-              {/* LED Status light */}
-              <div
-                className={`w-4 h-4 rounded-full mb-1 transition-all duration-300 shadow-md ${
-                  boostEnabled
-                    ? 'bg-emerald-400 shadow-emerald-400 ring-4 ring-emerald-500/30 animate-pulse'
-                    : 'bg-rose-500 shadow-rose-500 ring-2 ring-rose-500/20'
-                }`}
-              />
-
-              <span
-                className={`text-xs font-black tracking-wider transition-colors ${
-                  boostEnabled ? 'text-emerald-300' : 'text-rose-300'
-                }`}
-              >
-                {boostEnabled ? t.boostOn : t.boostOff}
-              </span>
-
-              <Sparkles
-                className={`w-3.5 h-3.5 mt-1 transition-opacity ${
-                  boostEnabled ? 'text-emerald-400 opacity-100' : 'text-rose-500/60 opacity-60'
-                }`}
-              />
-            </button>
-
-            <span className="text-[10px] text-slate-400 text-center mt-2 max-w-[100px] leading-tight">
-              {boostEnabled ? 'Avto dvig pri govoru' : 'Dvig izklopljen'}
-            </span>
-          </div>
-
           {/* Vertical Slider 2: Dvig pri govoru (Speech Boost Amount) */}
           <div className="flex flex-col items-center">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
@@ -214,11 +169,31 @@ export const AudioControlsSection: React.FC<AudioControlsSectionProps> = ({
       </div>
 
       {/* 4. Predvajaj/Ustavi in timer */}
-      <div className="mt-3 flex items-center justify-center gap-3">
-        {/* Play / Stop Button */}
+      <div className="mt-3 flex items-stretch justify-center gap-3">
+        {/* Levo: stikalo za dvig pri govoru (rdeče izklopljeno, zeleno vklopljeno) */}
+        <button
+          onClick={onToggleBoost}
+          className={`shrink-0 w-[4.5rem] flex flex-col items-center justify-center gap-0.5 rounded-2xl border-2 transition-all duration-300 shadow-lg active:scale-95 cursor-pointer ${
+            boostEnabled
+              ? 'bg-emerald-950/80 border-emerald-500 shadow-emerald-500/30 text-emerald-300'
+              : 'bg-rose-950/80 border-rose-600 shadow-rose-600/30 text-rose-300'
+          }`}
+          title={t.boostSwitch}
+          aria-pressed={boostEnabled}
+        >
+          <Sparkles className={`w-4 h-4 ${boostEnabled ? 'text-emerald-400' : 'text-rose-500'}`} />
+          <span className="text-[10px] font-black tracking-wider leading-none">
+            {lang === 'sl' ? 'DVIG' : 'BOOST'}
+          </span>
+          <span className="text-[10px] font-black tracking-wider leading-none">
+            {boostEnabled ? (lang === 'sl' ? 'VKL' : 'ON') : (lang === 'sl' ? 'IZKL' : 'OFF')}
+          </span>
+        </button>
+
+        {/* Sredina: Play / Stop */}
         <button
           onClick={onTogglePlay}
-          className={`flex-1 flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-bold text-base shadow-xl transition-all duration-200 active:scale-95 cursor-pointer ${
+          className={`flex-1 flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl font-bold text-base shadow-xl transition-all duration-200 active:scale-95 cursor-pointer ${
             isPlaying
               ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-rose-900/40 ring-2 ring-rose-500/30'
               : 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-emerald-900/40 ring-2 ring-emerald-500/40'
@@ -235,10 +210,10 @@ export const AudioControlsSection: React.FC<AudioControlsSectionProps> = ({
           <span className="tracking-wide">{isPlaying ? t.stop : t.play}</span>
         </button>
 
-        {/* Sleep Timer Toggle / Open Modal */}
-        <div className="relative">
+        {/* Desno: timer za samodejni izklop */}
+        <div className="relative shrink-0 flex">
           {timerRemaining !== null ? (
-            <div className="flex items-center gap-1 bg-amber-500/20 border border-amber-500/50 rounded-2xl p-1.5 shadow-md">
+            <div className="flex items-center gap-1 bg-amber-500/20 border border-amber-500/50 rounded-2xl p-1.5 shadow-md min-w-[4.5rem] justify-center">
               <button
                 onClick={() => setShowTimerModal(true)}
                 className="flex items-center gap-1.5 px-2.5 py-2 text-amber-300 font-bold text-xs"
@@ -257,7 +232,7 @@ export const AudioControlsSection: React.FC<AudioControlsSectionProps> = ({
           ) : (
             <button
               onClick={() => setShowTimerModal(true)}
-              className="flex items-center gap-2 py-3.5 px-4 rounded-2xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 border border-slate-700/80 shadow-md font-semibold text-xs transition active:scale-95 cursor-pointer"
+              className="flex items-center justify-center gap-2 w-[4.5rem] rounded-2xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 border border-slate-700/80 shadow-md font-semibold text-xs transition active:scale-95 cursor-pointer"
               title={t.sleepTimer}
             >
               <Clock className="w-4 h-4 text-amber-400" />

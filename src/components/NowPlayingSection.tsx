@@ -82,10 +82,10 @@ export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
         )}
 
         <div
-          className={`relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 border-2 ${
+          className={`relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 border-4 ${
             isPlaying
-              ? 'border-emerald-500/80 shadow-emerald-500/25 scale-102 ring-4 ring-emerald-500/20'
-              : 'border-slate-700/80 shadow-black/40 grayscale-20'
+              ? 'border-emerald-500 shadow-emerald-500/25'
+              : 'border-rose-600 shadow-rose-900/30'
           } bg-slate-900 flex items-center justify-center`}
         >
           {currentStation?.icon ? (
@@ -103,19 +103,6 @@ export const NowPlayingSection: React.FC<NowPlayingSectionProps> = ({
               <Radio className="w-12 h-12 text-slate-500" />
               <span className="text-xs font-bold mt-1 text-slate-300">
                 {currentStation?.name?.substring(0, 3)?.toUpperCase()}
-              </span>
-            </div>
-          )}
-
-          {/* Playing indicator pill */}
-          {isPlaying && (
-            <div className="absolute bottom-2 left-2 right-2 bg-slate-950/80 backdrop-blur-sm rounded-md py-0.5 px-1.5 flex items-center justify-center gap-1.5 border border-emerald-500/30">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-[10px] font-bold tracking-wider text-emerald-400 uppercase">
-                V ŽIVO (LIVE)
               </span>
             </div>
           )}
